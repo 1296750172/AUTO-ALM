@@ -71,15 +71,12 @@ router.beforeEach(async (to, from, next) => {
 	if (!isGetRouter) {
 		// 获取菜单信息
 		let apiMenu = tool.data.get("MENU") || []
-		console.log("菜单")
-		console.log(apiMenu)
 		// 获取用户信息
 		let userInfo = tool.data.get("USER_INFO")
 		// 静态路由菜单
 		let userMenu = treeFilter(userRoutes, node => {
 			return node.meta.role ? node.meta.role.filter(item => userInfo.role.indexOf(item) > -1).length > 0 : true
 		})
-		console.log(userMenu)
 		let menu = [...userMenu, ...apiMenu]
 		var menuRouter = filterAsyncRouter(menu)
 		menuRouter = flatAsyncRoutes(menuRouter)

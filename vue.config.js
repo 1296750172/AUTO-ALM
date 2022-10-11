@@ -2,13 +2,38 @@
  * @Author: happain
  * @Date: 2022-09-10 03:53:33
  * @LastEditors: happain
- * @LastEditTime: 2022-09-21 22:13:54
+ * @LastEditTime: 2022-10-07 02:36:50
  * @Description:
  */
 const { defineConfig } = require('@vue/cli-service');
 const AutoImport = require("unplugin-auto-import/webpack");
 const { ElementPlusResolver } = require("unplugin-vue-components/resolvers");
 const IconsResolver = require('unplugin-icons/resolver')
+// 打包压缩插件去除打印
+const TerserPlugin = require("terser-webpack-plugin");
+
+
+const initTerserPlugin = () => {
+	if (process.env.NODE_ENV === 'production') {
+		return new TerserPlugin({
+			cache: true,
+			sourceMap: false,
+			// 多进程
+			parallel: true,
+			terserOptions: {
+				ecma: undefined,
+				warnings: false,
+				parse: {},
+				compress: {
+					drop_console: true,
+					drop_debugger: false,
+					pure_funcs: ['console.log'], // 移除console
+				},
+			},
+		})
+	}
+}
+
 module.exports = defineConfig({
 	//设置为空打包后不分更目录还是多级目录
 	publicPath: '/',
@@ -54,58 +79,75 @@ module.exports = defineConfig({
 		config.resolve.alias.set('vue-i18n', 'vue-i18n/dist/vue-i18n.cjs.js');
 	},
 
-	configureWebpack: {
+	configureWebpack: () => {
 
-		plugins: [
-			AutoImport({
-				imports: ['vue'],
-				resolvers: [ElementPlusResolver(), IconsResolver({
-					prefix: 'Icon',
-				}),],
-				// eslint报错解决
-				eslintrc: {
-					enabled: false, // Default `false`
-					filepath: './.eslintrc-auto-import.json', // Default `./.eslintrc-auto-import.json`
-					globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
-				},
-			}),
-
-		],
-		//性能提示
-		performance: {
-			hints: false
-		},
-		optimization: {
-			splitChunks: {
-				chunks: "all",
-				automaticNameDelimiter: '~',
-				name: "scuiChunks",
-				cacheGroups: {
-					//第三方库抽离
-					vendor: {
-						name: "modules",
-						test: /[\\/]node_modules[\\/]/,
-						priority: -10
+		return {
+			plugins: [
+				AutoImport({
+					imports: ['vue'],
+					resolvers: [ElementPlusResolver(), IconsResolver({
+						prefix: 'Icon',
+					}),],
+					// eslint报错解决
+					eslintrc: {
+						enabled: false, // Default `false`
+						filepath: './.eslintrc-auto-import.json', // Default `./.eslintrc-auto-import.json`
+						globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
 					},
-					elicons: {
-						name: "elicons",
-						test: /[\\/]node_modules[\\/]@element-plus[\\/]icons-vue[\\/]/
+				}),
+				new TerserPlugin({
+					cache: true,
+					sourceMap: false,
+					// 多进程
+					parallel: true,
+					terserOptions: {
+						ecma: undefined,
+						warnings: false,
+						parse: {},
+						compress: {
+							drop_console: true,
+							drop_debugger: false,
+							pure_funcs: ['console.log'], // 移除console
+						},
 					},
-					tinymce: {
-						name: "tinymce",
-						test: /[\\/]node_modules[\\/]tinymce[\\/]/
-					},
-					echarts: {
-						name: "echarts",
-						test: /[\\/]node_modules[\\/]echarts[\\/]/
-					},
-					xgplayer: {
-						name: "xgplayer",
-						test: /[\\/]node_modules[\\/]xgplayer.*[\\/]/
-					},
-					codemirror: {
-						name: "codemirror",
-						test: /[\\/]node_modules[\\/]codemirror[\\/]/
+				})
+			],
+			//性能提示
+			performance: {
+				hints: false
+			},
+			optimization: {
+				splitChunks: {
+					chunks: "all",
+					automaticNameDelimiter: '~',
+					name: "scuiChunks",
+					cacheGroups: {
+						//第三方库抽离
+						vendor: {
+							name: "modules",
+							test: /[\\/]node_modules[\\/]/,
+							priority: -10
+						},
+						elicons: {
+							name: "elicons",
+							test: /[\\/]node_modules[\\/]@element-plus[\\/]icons-vue[\\/]/
+						},
+						tinymce: {
+							name: "tinymce",
+							test: /[\\/]node_modules[\\/]tinymce[\\/]/
+						},
+						echarts: {
+							name: "echarts",
+							test: /[\\/]node_modules[\\/]echarts[\\/]/
+						},
+						xgplayer: {
+							name: "xgplayer",
+							test: /[\\/]node_modules[\\/]xgplayer.*[\\/]/
+						},
+						codemirror: {
+							name: "codemirror",
+							test: /[\\/]node_modules[\\/]codemirror[\\/]/
+						}
 					}
 				}
 			}

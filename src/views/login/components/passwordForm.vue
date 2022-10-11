@@ -96,7 +96,7 @@ export default {
 			if (user.code == 200) {
 				// 设置cookie 登陆token期限
 				this.$TOOL.cookie.set("TOKEN", user.result.token, {
-					expires: 24 * 60 * 60 * 7,
+					expires: 24 * 60 * 60,
 				});
 				// 获取用户信息
 				const userInfo = await this.$API.user.getUserInfo.post();
@@ -122,9 +122,6 @@ export default {
 			// 获取菜单
 			var menu = null;
 			menu = await this.$API.user.getMenuByRole.post();
-			// 系统的菜单
-			let res = await this.$API.system.menu.myMenus.get();
-			console.log(res);
 			if (menu.code == 200) {
 				if (menu.result.length == 0) {
 					this.islogin = false;

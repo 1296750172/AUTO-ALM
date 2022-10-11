@@ -1,177 +1,198 @@
-<template>
-	<el-container>
-		<el-header>
-			<div class="left-panel">
-				<el-button type="primary" icon="el-icon-plus" @click="add"></el-button>
-				<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length==0" @click="batch_del"></el-button>
-				<el-button type="primary" plain :disabled="selection.length!=1" @click="permission">权限设置</el-button>
-			</div>
-			<div class="right-panel">
-				<div class="right-panel-search">
-					<el-input v-model="search.keyword" placeholder="角色名称" clearable></el-input>
-					<el-button type="primary" icon="el-icon-search" @click="upsearch"></el-button>
-				</div>
-			</div>
-		</el-header>
-		<el-main class="nopadding">
-			<scTable ref="table" :apiObj="apiObj" row-key="id" @selection-change="selectionChange" stripe>
-				<el-table-column type="selection" width="50"></el-table-column>
-				<el-table-column label="#" type="index" width="50"></el-table-column>
-				<el-table-column label="角色名称" prop="label" width="150"></el-table-column>
-				<el-table-column label="别名" prop="alias" width="200"></el-table-column>
-				<el-table-column label="排序" prop="sort" width="80"></el-table-column>
-				<el-table-column label="状态" prop="status" width="80">
-					<template #default="scope">
-						<el-switch v-model="scope.row.status" @change="changeSwitch($event, scope.row)" :loading="scope.row.$switch_status" active-value="1" inactive-value="0"></el-switch>
-					</template>
-				</el-table-column>
-				<el-table-column label="创建时间" prop="date" width="180"></el-table-column>
-				<el-table-column label="备注" prop="remark" min-width="150"></el-table-column>
-				<el-table-column label="操作" fixed="right" align="right" width="170">
-					<template #default="scope">
-						<el-button-group>
-							<el-button text type="primary" size="small" @click="table_show(scope.row, scope.$index)">查看</el-button>
-							<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)">编辑</el-button>
-							<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
-								<template #reference>
-									<el-button text type="primary" size="small">删除</el-button>
-								</template>
-							</el-popconfirm>
-						</el-button-group>
-					</template>
-				</el-table-column>
-
-			</scTable>
-		</el-main>
-	</el-container>
-
-	<save-dialog v-if="dialog.save" ref="saveDialog" @success="handleSaveSuccess" @closed="dialog.save=false"></save-dialog>
-
-	<permission-dialog v-if="dialog.permission" ref="permissionDialog" @closed="dialog.permission=false"></permission-dialog>
-
-</template>
-
-<script>
-	import saveDialog from './save'
-	import permissionDialog from './permission'
-
-	export default {
-		name: 'role',
-		components: {
-			saveDialog,
-			permissionDialog
-		},
-		data() {
-			return {
-				dialog: {
-					save: false,
-					permission: false
-				},
-				apiObj: this.$API.system.role.list,
-				selection: [],
-				search: {
-					keyword: null
-				}
-			}
-		},
-		methods: {
-			//添加
-			add(){
-				this.dialog.save = true
-				this.$nextTick(() => {
-					this.$refs.saveDialog.open()
-				})
-			},
-			//编辑
-			table_edit(row){
-				this.dialog.save = true
-				this.$nextTick(() => {
-					this.$refs.saveDialog.open('edit').setData(row)
-				})
-			},
-			//查看
-			table_show(row){
-				this.dialog.save = true
-				this.$nextTick(() => {
-					this.$refs.saveDialog.open('show').setData(row)
-				})
-			},
-			//权限设置
-			permission(){
-				this.dialog.permission = true
-				this.$nextTick(() => {
-					this.$refs.permissionDialog.open()
-				})
-			},
-			//删除
-			async table_del(row){
-				var reqData = {id: row.id}
-				var res = await this.$API.demo.post.post(reqData);
-				if(res.code == 200){
-					this.$refs.table.refresh()
-					this.$message.success("删除成功")
-				}else{
-					this.$alert(res.message, "提示", {type: 'error'})
-				}
-			},
-			//批量删除
-			async batch_del(){
-				this.$confirm(`确定删除选中的 ${this.selection.length} 项吗？如果删除项中含有子集将会被一并删除`, '提示', {
-					type: 'warning'
-				}).then(() => {
-					const loading = this.$loading();
-					this.$refs.table.refresh()
-					loading.close();
-					this.$message.success("操作成功")
-				}).catch(() => {
-
-				})
-			},
-			//表格选择后回调事件
-			selectionChange(selection){
-				this.selection = selection;
-			},
-			//表格内开关
-			changeSwitch(val, row){
-				row.status = row.status == '1'?'0':'1'
-				row.$switch_status = true;
-				setTimeout(()=>{
-					delete row.$switch_status;
-					row.status = val;
-					this.$message.success("操作成功")
-				}, 500)
-			},
-			//搜索
-			upsearch(){
-
-			},
-			//根据ID获取树结构
-			filterTree(id){
-				var target = null;
-				function filter(tree){
-					tree.forEach(item => {
-						if(item.id == id){
-							target = item
-						}
-						if(item.children){
-							filter(item.children)
-						}
-					})
-				}
-				filter(this.$refs.table.tableData)
-				return target
-			},
-			//本地更新数据
-			handleSaveSuccess(data, mode){
-				if(mode=='add'){
-					this.$refs.table.refresh()
-				}else if(mode=='edit'){
-					this.$refs.table.refresh()
-				}
-			}
+<!--
+ * @Author: happain
+ * @Date: 2022-10-06 19:15:34
+ * @LastEditors: happain
+ * @LastEditTime: 2022-10-11 23:42:20
+ * @Description:
+-->
+<script setup>
+import almPage from "@/components/almPage";
+import RoleForm from "./components/roleForm";
+import RoleSearch from "./components/roleSearch";
+/*初始化区*/
+const app = getCurrentInstance().appContext.config.globalProperties;
+/*数据定义区*/
+const tableData = ref();
+const page = ref({
+	pageNum: 1,
+	pageSize: 20,
+	total: 0,
+});
+const chooseData = ref();
+/*ref引用区*/
+const tableRef = ref();
+const formRef = ref();
+const searchRef = ref();
+/*方法区*/
+const handleSelectionChange = (value) => {
+	chooseData.value = value;
+};
+const initData = async (pagedata, searchdata) => {
+	let pageparm = {
+		pageNum: 1,
+		pageSize: 20,
+	};
+	if (pagedata != null) {
+		pageparm.pageNum = page.value.pageNum;
+		pageparm.pageSize = page.value.pageSize;
+	}
+	const result = await app.$API.role.query.post({
+		pageNum: pageparm.pageNum,
+		pageSize: pageparm.pageSize,
+		...searchdata,
+	});
+	if (result.code == 200) {
+		tableData.value = result.result.list;
+		page.value.pageNum = result.result.pageNum;
+		page.value.pageSize = result.result.pageSize;
+		page.value.total = result.result.total;
+	}
+};
+const changePage = (pagenum) => {
+	page.value.pageNum = pagenum;
+	initData(page.value);
+};
+const refresh = () => {
+	initData();
+	app.$message.success("刷新成功");
+};
+// 搜索
+const search = (value) => {
+	initData(null, value);
+};
+const delHandler = async (data) => {
+	// 单个删除
+	if (data != null) {
+		const result = await app.$API.role.del.post({ id: data.id });
+		if (result.code == 200) {
+			app.$message.success(result.message);
+			initData();
 		}
 	}
+	// 批量删除
+	else {
+		const idlist = [];
+		chooseData.value.map((item) => {
+			idlist.push(item.id);
+		});
+		console.log(idlist);
+	}
+};
+
+/*内部方法区*/
+onMounted(() => {
+	initData();
+});
 </script>
 
-<style>
+<template>
+	<div class="role">
+		<el-container>
+			<el-header>
+				<div class="left-panel">
+					<el-button
+						type="primary"
+						icon="el-icon-plus"
+						@click="formRef.changeVis(true)"
+						>添加</el-button
+					>
+					<el-button
+						type="danger"
+						icon="el-icon-delete"
+						@click="delHandler()"
+						:disabled="chooseData == null || chooseData.length == 0"
+						>批量删除</el-button
+					>
+				</div>
+
+				<div class="rigth-panel">
+					<el-button icon="el-icon-refresh" @click="refresh()"
+						>刷新</el-button
+					>
+				</div>
+			</el-header>
+			<el-main class="nopadding">
+				<RoleSearch ref="searchRef" @search="search"></RoleSearch>
+				<div class="content">
+					<el-table
+						ref="tableRef"
+						:data="tableData"
+						row-key="id"
+						border
+						max-height="700"
+						style="width: 100%"
+						stripe
+						highlight-current-row
+						@selection-change="handleSelectionChange"
+					>
+						<el-table-column type="selection" width="55" />
+						<el-table-column prop="id" label="id" width="80" />
+						<el-table-column prop="roleName" label="角色名" />
+						<el-table-column prop="roleValue" label="角色key值" />
+						<el-table-column label="菜单列表" width="300">
+							<template #default="scope">
+								<!-- <el-tree
+									:data="scope.row.menuList"
+									node-key="id"
+									default-expand-all
+									class="menu-tree"
+								>
+									<template #default="{ data }">
+										<span class="custom-tree-node">
+											<span>{{ data.meta.title }}</span>
+										</span>
+									</template>
+								</el-tree> -->
+								{{ scope.row.menuIds }}
+							</template>
+						</el-table-column>
+						<el-table-column
+							prop="createTime"
+							label="创建时间"
+							sortable
+						/>
+						<el-table-column fixed="right" label="操作" width="180">
+							<template #default="scope">
+								<el-button
+									link
+									type="primary"
+									size="small"
+									@click="formRef.changeVis(true, scope.row)"
+									>编辑</el-button
+								>
+								<el-button
+									link
+									type="danger"
+									size="small"
+									@click="delHandler(scope.row)"
+									>删除</el-button
+								>
+							</template>
+						</el-table-column>
+					</el-table>
+					<!-- 分页组件 -->
+				</div>
+				<!-- 分页组件 -->
+				<almPage :page="page" @changePage="changePage"></almPage>
+			</el-main>
+		</el-container>
+		<!-- 表单 -->
+		<RoleForm
+			ref="formRef"
+			@added="initData()"
+			@upded="initData()"
+		></RoleForm>
+	</div>
+</template>
+
+<style scoped lang="less">
+.role {
+}
+.content {
+}
+.menu-tree {
+	max-height: 100px;
+	overflow-y: auto;
+	width: 100%;
+}
 </style>

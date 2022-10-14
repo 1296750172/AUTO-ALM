@@ -2,7 +2,7 @@
  * @Author: happain
  * @Date: 2022-09-10 03:53:36
  * @LastEditors: happain
- * @LastEditTime: 2022-09-20 23:37:43
+ * @LastEditTime: 2022-10-13 23:35:04
  * @Description:
  */
 // 静态路由配置
@@ -34,29 +34,6 @@
 // ]
 
 const routes = [
-	// 需求文档
-	{
-		name: "Need",
-		path: "/needs",
-		meta: {
-			title: "需求管理",
-			icon: "el-icon-document",
-			// role: ["SA"]
-		},
-		children: [
-
-			{
-				name: "Need",
-				path: "/need",
-				meta: {
-					icon: "el-icon-List",
-					title: "需求文档",
-					// role: ["SA"]
-				},
-				component: 'needs/need'
-			},
-		],
-	}
 ]
 
 export default routes;

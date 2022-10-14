@@ -2,7 +2,7 @@
  * @Author: happain
  * @Date: 2022-10-05 20:34:38
  * @LastEditors: happain
- * @LastEditTime: 2022-10-06 20:29:56
+ * @LastEditTime: 2022-10-14 00:02:08
  * @Description:
 -->
 <script setup>
@@ -42,7 +42,7 @@ const tranMenu = (id, allMenu) => {
 // 表单
 const updMenuform = ref({
 	id: "",
-	parentId: "",
+	parentId: "0",
 	name: "",
 	path: "",
 	sort: "",
@@ -152,14 +152,18 @@ const updMenu = async (form) => {
 			if (result.code == 200) {
 				app.$message.success(result.message);
 				emits("added");
-				loading.value = false;
 			}
 		}
 	});
+	loading.value = false;
 };
 // 选中父级菜单事件
 const casChange = (value) => {
-	updMenuform.value.parentId = value.at(-1);
+	if (!value) {
+		updMenuform.value.parentId = 0;
+	} else {
+		updMenuform.value.parentId = value.at(-1);
+	}
 	// if (value.at(-1) == updMenuform.value.id) {
 	// 	app.$message.error("不能选自身为父级菜单");
 	// }

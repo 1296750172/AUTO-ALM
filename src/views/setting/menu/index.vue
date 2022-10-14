@@ -106,7 +106,6 @@ onMounted(() => {
 							:data="menuList"
 							:props="menuProps"
 							highlight-current
-							default-expand-all
 							:expand-on-click-node="true"
 							check-strictly
 							:filter-node-method="menuFilterNode"

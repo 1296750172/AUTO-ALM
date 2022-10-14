@@ -1,3 +1,10 @@
+/*
+ * @Author: happain
+ * @Date: 2022-09-10 03:53:36
+ * @LastEditors: happain
+ * @LastEditTime: 2022-10-15 01:09:48
+ * @Description:
+ */
 import API from "@/api";
 
 //字典选择器配置

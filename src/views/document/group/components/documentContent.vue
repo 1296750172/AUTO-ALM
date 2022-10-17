@@ -2,7 +2,7 @@
  * @Author: happain
  * @Date: 2022-09-21 22:27:28
  * @LastEditors: happain
- * @LastEditTime: 2022-10-15 02:28:26
+ * @LastEditTime: 2022-10-18 00:22:44
  * @Description:
 -->
 <script setup>
@@ -14,32 +14,32 @@ const app = getCurrentInstance().appContext.config.globalProperties;
 const documentTypeList = ref([
 	{
 		label: "客户需求",
-		name: "custom_need",
+		name: "custom",
 		tabcom: markRaw(CustomerDocument),
 	},
 	{
 		label: "系统需求",
-		name: "system_need",
+		name: "system",
 		tabcom: markRaw(SystemDocument),
 	},
 	{
 		label: "系统架构",
-		name: "system_arc_need",
+		name: "system_arc",
 		tabcom: markRaw(CustomerDocument),
 	},
 	{
 		label: "软件需求",
-		name: "soft_need",
+		name: "software",
 		tabcom: markRaw(CustomerDocument),
 	},
 	{
 		label: "软件架构",
-		name: "sofr_arc_need",
+		name: "software_arc",
 		tabcom: markRaw(CustomerDocument),
 	},
 	{
 		label: "硬件需求",
-		name: "hardware_need",
+		name: "hardware",
 		tabcom: markRaw(CustomerDocument),
 	},
 ]);
@@ -51,7 +51,7 @@ const documentCom = ref(documentTypeList.value[0].tabcom);
 /*方法区*/
 const documentTabChange = (tab) => {
 	// 切换组件
-	documentCom.value = tab.props.tabcom;
+	documentCom.value = documentTypeList.value[tab.index].tabcom;
 	console.log(app);
 };
 /*内部方法区*/
@@ -71,7 +71,7 @@ const documentTabChange = (tab) => {
 						:name="item.name"
 						:key="item.name"
 					>
-						<Component :is="item.tabcom"></Component>
+						<Component :is="documentCom"></Component>
 					</el-tab-pane>
 				</el-tabs>
 			</el-main>

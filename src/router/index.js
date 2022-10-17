@@ -71,10 +71,12 @@ router.beforeEach(async (to, from, next) => {
 		let apiMenu = tool.data.get("MENU") || []
 		// 获取用户信息
 		let userInfo = tool.data.get("USER_INFO")
+		console.log(userInfo)
 		// 静态路由菜单
-		let userMenu = treeFilter(userRoutes, node => {
-			return node.meta.role ? node.meta.role.filter(item => userInfo.role.indexOf(item) > -1).length > 0 : true
+		let userMenu = treeFilter(userRoutes, (node) => {
+			return true | node
 		})
+		console.log(userMenu)
 		let menu = [...userMenu, ...apiMenu]
 		var menuRouter = filterAsyncRouter(menu)
 		menuRouter = flatAsyncRoutes(menuRouter)
@@ -107,9 +109,8 @@ router.onError((error) => {
 //入侵追加自定义方法、对象
 router.sc_getMenu = () => {
 	var apiMenu = tool.data.get("MENU") || []
-	let userInfo = tool.data.get("USER_INFO")
 	let userMenu = treeFilter(userRoutes, node => {
-		return node.meta.role ? node.meta.role.filter(item => userInfo.role.indexOf(item) > -1).length > 0 : true
+		return true | node
 	})
 	var menu = [...userMenu, ...apiMenu]
 	return menu

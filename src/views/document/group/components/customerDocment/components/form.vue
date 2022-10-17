@@ -1,5 +1,5 @@
 <script setup>
-const scEditor = defineAsyncComponent(() => import("@/components/scEditor"));
+const almEditor = defineAsyncComponent(() => import("@/components/almEditor"));
 const app = getCurrentInstance().appContext.config.globalProperties;
 
 /*初始化区*/
@@ -36,7 +36,7 @@ const documentTemplate = ref([]);
 /*ref引用区*/
 const formRef = ref();
 /*方法区*/
-const init = () => {
+const init = (formdata) => {
 	const user = app.$TOOL.data.get("USER_INFO");
 	formData.value = {
 		id: "",
@@ -45,15 +45,16 @@ const init = () => {
 		type: "Car",
 		content: "",
 		createUser: user.nickname,
+		updateUser: user.nickname,
 	};
+	if (formdata != null) {
+		let { id, title, type, status, content } = { ...formdata };
+		Object.assign(formData.value, { id, title, type, status, content });
+	}
 };
 const changeVis = (isvis, formdata) => {
 	vis.value = isvis;
-	if (formdata != null) {
-		formData.value = formdata;
-	} else {
-		init();
-	}
+	init(formdata);
 };
 const submit = async (form) => {
 	if (!form) {
@@ -64,7 +65,7 @@ const submit = async (form) => {
 		if (valid) {
 			// 添加
 			if (formData.value.id == "") {
-				const result = await app.$API.doc.add.post({
+				const result = await app.$API.docGroup.add.post({
 					...formData.value,
 				});
 				if (result.code == 200) {
@@ -73,7 +74,7 @@ const submit = async (form) => {
 					emits("added");
 				}
 			} else {
-				const result = await app.$API.doc.upd.post({
+				const result = await app.$API.docGroup.upd.post({
 					...formData.value,
 				});
 				if (result.code == 200) {
@@ -137,12 +138,12 @@ onMounted(() => {});
 					</el-form-item>
 
 					<el-form-item label="描述" prop="content">
-						<sc-editor
+						<alm-editor
 							v-model="formData.content"
 							placeholder="请输入内容"
 							:templates="documentTemplate"
 							:height="300"
-						></sc-editor>
+						></alm-editor>
 					</el-form-item>
 
 					<el-form-item>

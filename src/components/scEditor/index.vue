@@ -96,6 +96,8 @@ export default {
 				image_caption: true,
 				image_advtab: true,
 				images_upload_handler: function (blobInfo) {
+					console.log(this);
+					let _this = this;
 					return new Promise((resolve, reject) => {
 						const data = new FormData();
 						data.append(
@@ -106,10 +108,18 @@ export default {
 						API.common.upload
 							.post(data)
 							.then((res) => {
-								resolve(res.data.src);
+								if (res.code != 200) {
+									reject();
+								} else {
+									console.log(1111111111);
+									console.log(_this);
+									// _this.$message.success("文件上传成功");
+
+									resolve(res.result.filePath);
+								}
 							})
 							.catch(() => {
-								reject("Image upload failed");
+								reject();
 							});
 					});
 				},

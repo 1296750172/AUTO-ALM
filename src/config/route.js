@@ -2,7 +2,7 @@
  * @Author: happain
  * @Date: 2022-09-10 03:53:36
  * @LastEditors: happain
- * @LastEditTime: 2022-10-13 23:35:04
+ * @LastEditTime: 2022-10-17 23:08:54
  * @Description:
  */
 // 静态路由配置
@@ -34,6 +34,19 @@
 // ]
 
 const routes = [
+	// {
+	// 	name: "document-detail",
+	// 	path: "/document/detail",
+	// 	component: "document/detail",
+	// 	meta: {
+	// 		icon: "el-icon-eleme-filled",
+	// 		title: "文档条目列表",
+	// 		hidden: true,
+	// 		type: "menu",
+	// 		role: ["admin"]
+	// 	},
+	// }
+
 ]
 
 export default routes;

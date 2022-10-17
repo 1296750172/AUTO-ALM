@@ -2,15 +2,19 @@
  * @Author: happain
  * @Date: 2022-10-14 01:26:14
  * @LastEditors: happain
- * @LastEditTime: 2022-10-15 04:46:53
+ * @LastEditTime: 2022-10-18 00:35:49
  * @Description:
 -->
 <script setup>
 import almPage from "@/components/almPage";
 import FormCom from "./components/form.vue";
 import SearchCom from "./components/search.vue";
+import { useRouter } from "vue-router";
+import Data from "../../../data.js";
 /*初始化区*/
 const app = getCurrentInstance().appContext.config.globalProperties;
+const router = useRouter();
+
 /*数据定义区*/
 const tableData = ref();
 const page = ref({
@@ -38,9 +42,10 @@ const initData = async (pagedata, searchdata) => {
 		pageparm.pageNum = page.value.pageNum;
 		pageparm.pageSize = page.value.pageSize;
 	}
-	const result = await app.$API.doc.query.post({
+	const result = await app.$API.docGroup.query.post({
 		pageNum: pageparm.pageNum,
 		pageSize: pageparm.pageSize,
+		type: "customer",
 		...searchdata,
 	});
 	if (result.code == 200) {
@@ -66,7 +71,7 @@ const search = (value) => {
 const delHandler = async (data) => {
 	// 单个删除
 	if (data != null) {
-		const result = await app.$API.doc.del.post({ id: data.id });
+		const result = await app.$API.docGroup.del.post({ id: data.id });
 		if (result.code == 200) {
 			app.$message.success(result.message);
 			initData();
@@ -81,11 +86,21 @@ const delHandler = async (data) => {
 		console.log(idlist);
 	}
 };
+// 查看条目列表
+const showItem = (item) => {
+	const type = Data.documentType[item.type];
+	console.log(type);
+	router.push({
+		name: "document-detail",
 
+		params: { title: type + "-" + item.id + "-" + "条目" },
+	});
+};
 /*内部方法区*/
 onMounted(() => {
 	initData();
 });
+defineExpose({ initData });
 </script>
 
 <template>
@@ -131,25 +146,20 @@ onMounted(() => {
 					>
 						<el-table-column type="selection" width="55" />
 						<el-table-column prop="id" label="id" width="80" />
-						<el-table-column prop="status" label="类型">
-							<template #default="scope">
-								{{ scope.row.type }}
-							</template>
-						</el-table-column>
-						<el-table-column
-							prop="title"
-							label="标题"
-							width="300"
-						/>
-						<el-table-column prop="status" label="状态">
+						<el-table-column prop="status" label="状态" width="80">
 							<template #default="scope">
 								<el-tag>
 									{{ scope.row.status }}
 								</el-tag>
 							</template>
 						</el-table-column>
+						<el-table-column prop="title" label="标题" />
 
-						<el-table-column props="createUser" label="创建人">
+						<el-table-column
+							props="createUser"
+							label="创建人"
+							width="100"
+						>
 							<template #default="scope">
 								<el-tag>
 									{{ scope.row.createUser }}
@@ -161,31 +171,42 @@ onMounted(() => {
 							prop="createTime"
 							label="创建时间"
 							sortable
+							width="180"
 						/>
 
 						<el-table-column fixed="right" label="操作" width="180">
 							<template #default="scope">
-								<el-button
-									link
-									type="primary"
-									size="small"
-									@click="formRef.changeVis(true, scope.row)"
-									>查看</el-button
-								>
-								<el-button
-									link
-									type="primary"
-									size="small"
-									@click="formRef.changeVis(true, scope.row)"
-									>编辑</el-button
-								>
-								<el-button
-									link
-									type="danger"
-									size="small"
-									@click="delHandler(scope.row)"
-									>删除</el-button
-								>
+								<div class="op-div">
+									<div>
+										<el-button
+											type="primary"
+											size="small"
+											@click="
+												formRef.changeVis(
+													true,
+													scope.row
+												)
+											"
+											>编辑</el-button
+										>
+									</div>
+									<div>
+										<el-button
+											type="danger"
+											size="small"
+											@click="delHandler(scope.row)"
+											>删除</el-button
+										>
+									</div>
+									<div>
+										<el-button
+											type="primary"
+											size="small"
+											@click="showItem(scope.row)"
+											>查看条目列表</el-button
+										>
+									</div>
+								</div>
 							</template>
 						</el-table-column>
 					</el-table>
@@ -205,5 +226,14 @@ onMounted(() => {
 
 <style scoped lang="less">
 .customer {
+}
+.op-div {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	flex-wrap: wrap;
+	div {
+		padding: 4px;
+	}
 }
 </style>
